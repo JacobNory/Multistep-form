@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EZ-CleanGO - Book Now</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700&display=swap" rel="stylesheet">
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 2rem;
+      background-color: white;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    header h1 {
+      color: #007bff;
+      font-weight: bold;
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+    header p {
+      font-size: 1.1rem;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+    }
+.form-wrapper {
+      background-color: #EFF7FB;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+      position: relative;
+    }
+.progress-container {
+  background: #e8f8ee;
+  padding: 1.2rem 1.2rem 1rem 1.2rem;
+  border-radius: 1.2rem 1.2rem 0 0;
+  box-shadow: 0 2px 8px 0 #e5e7ea26;
+  border-bottom: 3px solid #6be19b; /* fresh green bottom border */
+}
+
+.progress-bar {
+  width: 0%;
+  height: 7px;
+  /* Gradient: fresh green → blue → soft light */
+  background: linear-gradient(90deg, #6be19b 0%, #67c7ee 60%, #d8dee9 100%);
+  border-radius: 3.5px;
+  transition: width 0.6s cubic-bezier(.6,.2,.4,1), background 0.4s ease;
+  box-shadow: 0 1px 8px #e9eef6;
+  margin-bottom: 1.2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-steps {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #5d6472;
+  gap: 2rem;
+  letter-spacing: 0.01em;
+  text-align: center;
+}
+.progress-steps span.active {
+  color: #3653a5;
+  font-weight: 700;
+  text-shadow: 0 1px 2px #e8ecf4;
+}
+.intro-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 2rem;
+  background: #f7fafc;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  min-height: 270px;
+}
+
+.intro-section-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.intro-section-img img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+.book-now {
+  margin-top: 1.6rem;
+  padding: 0.95rem 2.2rem;
+  font-size: 1.12rem;
+  background: linear-gradient(90deg, #6ce9a6 0%, #43b0ef 100%);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  border-radius: 28px;
+  cursor: pointer;
+  box-shadow: 0 3px 20px 0 #a8f1e055;
+  transition: background 0.2s, transform 0.13s, box-shadow 0.2s;
+  outline: none;
+}
+.book-now:hover, .book-now:focus {
+  background: linear-gradient(90deg, #43b0ef 0%, #6ce9a6 100%);
+  transform: translateY(-1px) scale(1.04);
+  box-shadow: 0 8px 32px 0 #b0e7fa77;
+}
+
+/* Rest unchanged or similarly freshened */
+.step-section {
+  padding: 2rem 1.5rem;
+  display: none;
+}
+.section-box {
+  background: rgba(255,255,255,0.96);
+  border-radius: 1.4rem;
+  padding: 1.3rem 1rem;
+  margin-bottom: 1.4rem;
+  box-shadow: 0 2px 10px 0 #e4eaf777;
+}
+.section-title {
+  font-weight: 800;
+  color: #253256;         /* Deep, strong blue */
+  font-size: 1.18rem;
+  margin-bottom: 0.18rem;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 3px #d4d9ee29; /* subtle depth */
+}
+
+.section-subline {
+  font-size: 0.97rem;
+  color: #374151;         /* Deep, rich neutral (almost slate) */
+  margin-bottom: 1.08rem;
+  font-weight: 500;
+  opacity: 0.96;
+  text-shadow: 0 1px 2px #e2e8f018;
+}
+    .error {
+      color: red;
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+      display: none;
+    }
+    .property-options {
+      display: flex;
+      gap: 1rem;
+    }
+    .property-option {
+      flex: 1;
+      background-color: #f6fcff;
+      padding: 1rem;
+      border-radius: 16px;
+      text-align: center;
+      font-weight: bold;
+      color: #6f7070;
+      cursor: pointer;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+      box-shadow: -3px 4px 0 0 #4A90E2;
+    }
+    .property-option.selected {
+      background-color: #e3ffe9;
+    }
+    .counter-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+    .counter-button {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+    .counter-display {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #333;
+    }
+    .counter-label {
+      font-size: 0.9rem;
+      text-align: center;
+      margin-top: 0.25rem;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .service-card,
+    .package-option,
+    .frequency-option,
+    .addon-item {
+      border-radius: 16px;
+      padding: 1rem;
+      text-align: center;
+      background-color: #f6fcff;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: -3px 4px 0 0 #4A90E2;
+    }
+    .service-card.selected,
+    .package-option.selected,
+    .frequency-option.selected,
+    .addon-item.selected {
+      background-color: #e3ffe9;
+    }
+    .service-card h2,
+    .package-option h2,
+    .frequency-option h2,
+    .addon-title {
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: #6f7070;
+      margin: 0.5rem 0 0.25rem;
+    }
+    .service-card p,
+    .package-option p,
+    .frequency-option p,
+    .addon-desc {
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: #555;
+      margin: 0;
+    }
+    .summary-bar {
+      background-color: #f0fff4;
+      border-radius: 16px;
+      padding: 1rem;
+      width: 100%;
+      max-width: 300px;
+      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.06);
+      color: Black;
+    }
+    .summary-bar h3 {
+      margin-top: 0;
+      color: #28a745;
+    }
+    .summary-item {
+      margin-bottom: 0.5rem;
+    }
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      border-top: 1px solid #ddd;
+      background-color: #EFF7FB;
+    }
+    .back-button,
+    .next-button {
+      padding: 0.6rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 25px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .back-button {
+      background-color: white;
+      color: #007bff;
+      border: 2px solid #007bff;
+    }
+    .back-button:hover {
+      background-color: #f2f2f2;
+    }
+    .next-button {
+      background-color: #007bff;
+      color: white;
+    }
+    .next-button:hover {
+      background-color: #005bb5;
+    }
+    .addon-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-height: 360px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+    .addon-item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+    }
+    .addon-item input {
+      transform: scale(1.2);
+    }
+    .addon-details {
+      display: flex;
+      flex-direction: column;
+    }
+    .addon-price {
+      white-space: nowrap;
+      font-weight: 500;
+    }
+    .contact-form {
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+      border-radius: 20px;
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .form-row {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .form-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .form-label {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+    }
+    .form-input,
+    .form-textarea,
+    .form-date,
+    #timeslot-select {
+      background: rgba(255, 255, 255, 0.9);
+      color: #1f2937;
+      border: 1px solid rgba(31, 41, 55, 0.2);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      outline: none;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      transition: background 0.3s, box-shadow 0.3s, transform 0.2s, border-color 0.2s;
+    }
+    .form-input:focus,
+    .form-textarea:focus,
+    .form-date:focus,
+    #timeslot-select:focus {
+      background: #ffffff;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+      transform: translateY(-1px);
+    }
+    .form-textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+    .calendar {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+    .calendar .form-date {
+      background: none;
+      border: none;
+      border-bottom: 2px solid #007bff;
+      padding: 0.5rem 0;
+    }
+    .calendar .form-date:focus {
+      border-bottom-color: #005bb5;
+    }
+    #timeslot-select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      width: 100%;
+      padding-right: 2rem;
+      background-image: url("data:image/svg+xml;utf8,<svg fill='%236f7070' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      background-size: 1em;
+    }
+    #payment .section-box {
+      text-align: center;
+      color: Black;
+    }
+    #payment #payment-element {
+      margin: 1rem 0;
+    }
+    #submit {
+      background-color: #007bff;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 25px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #submit:hover {
+      background-color: #005bb5;
+    }
+    #payment-message {
+      margin-top: 1rem;
+      color: red;
+    }
+   @media (max-width: 991px) {
+  body {
+    padding: 1.2rem;
+  }
+  .container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.2rem;
+  }
+  .summary-bar {
+    max-width: 100%;
+    margin-top: 1.2rem;
+    padding: 1.3rem 1.1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .addon-item {
+    grid-template-columns: auto 1fr;
+  }
+  .addon-price {
+    grid-column: 1 / -1;
+    text-align: right;
+  }
+  .form-row {
+    flex-direction: column;
+  }
+
+  .form-wrapper {
+    max-width: 100vw;
+    min-width: 0;
+    border-radius: 1.2rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    padding: 0;
+  }
+  .progress-container {
+    padding: 0.8rem 0.7rem 0.7rem 0.7rem;
+    border-radius: 1.2rem 1.2rem 0 0;
+    margin-bottom: 1.6rem; /* More space below the progress bar */
+  }
+  .progress-steps {
+    gap: 0.4rem;
+    font-size: 0.86rem;
+    flex-wrap: nowrap !important;
+    overflow-x: hidden !important;  /* prevent scroll */
+    white-space: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin: 0 auto;
+  }
+  .progress-steps span {
+    flex: 1 1 0%;
+    text-align: center;
+    padding: 0 2px;
+    min-width: 0;
+    font-size: 0.87rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position: relative;
+    visibility: hidden;
+  }
+  /* Show short step labels on mobile */
+  .progress-steps span:nth-child(1)::after { content: "Home"; }
+  .progress-steps span:nth-child(2)::after { content: "Type"; }
+  .progress-steps span:nth-child(3)::after { content: "Add-ons"; }
+  .progress-steps span:nth-child(4)::after { content: "Contact"; }
+  .progress-steps span:nth-child(5)::after { content: "Payment"; }
+  .progress-steps span::after {
+    visibility: visible;
+    position: absolute;
+    left: 0; right: 0; top: 0; bottom: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+  }
+
+  .intro-section {
+    flex-direction: column;
+    align-items: center;
+    padding: 1.6rem 1rem;
+    gap: 1.7rem;
+    min-height: 200px;
+    margin-top: 1.2rem !important;  /* space from progress */
+  }
+  .intro-section-img {
+    width: 110px;
+    height: 130px;
+    margin-bottom: 1.2rem;
+    margin-top: 1.2rem;   /* Extra space between progress bar and image */
+  }
+  .intro-section-content {
+    width: 100%;
+    text-align: center;
+  }
+  .step-section {
+    padding: 1.3rem 0.6rem;
+  }
+  .section-box {
+    padding: 1rem 0.6rem;
+    border-radius: 1.2rem;
+  }
+  .grid-3 {
+    grid-template-columns: 1fr;
+    gap: 0.7rem;
+  }
+  .nav-buttons {
+    padding: 0.8rem 0.5rem;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .back-button, .next-button {
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.9rem 0;
+    border-radius: 1.2rem;
+  }
+  .calendar {
+    padding: 1rem 0.5rem;
+    border-radius: 1rem;
+  }
+  .addon-list {
+    max-height: 220px;
+    gap: 0.5rem;
+  }
+  .summary-bar {
+    padding: 1.6rem 1rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 0.4rem;
+  }
+  .form-wrapper,
+  .container,
+  .summary-bar {
+    max-width: 100vw !important;
+    min-width: 0;
+    border-radius: 0.9rem;
+    margin: 0;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+  header h1 {
+    font-size: 1.1rem;
+  }
+  .intro-section-img {
+    width: 74px;
+    height: 86px;
+    margin-bottom: 0.7rem;
+    margin-top: 1.1rem;
+  }
+  .intro-section h2 {
+    font-size: 1.09rem;
+  }
+  .book-now {
+    font-size: 0.92rem;
+    padding: 0.67rem 0.98rem;
+  }
+  .summary-bar {
+    padding: 1.05rem 0.3rem !important;
+  }
+}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Book Your Cleaning Service</h1>
+    <p>Just a few simple steps to schedule your cleaning service. Tell us about your space and your needs, and we’ll take care of the rest.</p>
+  </header>
+
+   <div class="container">
+    <div class="form-wrapper">
+      <!-- Progress -->
+      <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+        <div class="progress-steps">
+          <span>Home Details</span>
+          <span>Service Type</span>
+          <span>Add-ons</span>
+          <span>Contact</span>
+          <span>Payment</span>
+        </div>
+      </div>
+
+<div class="intro-section" id="intro-section">
+  <div class="intro-section-content">
+    <img src="https://cdn.prod.website-files.com/682d05b0fd7850f59316c66c/6857b4302a5154ac883bafed_Group%205-3.svg" alt="Sweeping Lady" style="width: 150px; height: auto; margin-bottom: 1.5rem;" />
+    <button class="book-now" onclick="startBooking()">BOOK NOW</button>
+  </div>
+</div>
+
+      <!-- Step 1: Home Details -->
+      <div class="step-section" id="home-details">
+        <div class="section-box">
+          <div class="section-title">Select Property Type</div>
+          <div class="section-subline">Please select the type of property you need cleaned.</div>
+          <div class="property-options">
+            <div class="property-option" onclick="selectProperty('House')">House</div>
+            <div class="property-option" onclick="selectProperty('Apartment')">Apartment</div>
+            <div class="property-option" onclick="selectProperty('Condo')">Condo</div>
+          </div>
+          <div id="error-property" class="error">REQUIRED!</div>
+        </div>
+        <div class="section-box">
+          <div class="section-title">Number of Bedrooms</div>
+          <div class="section-subline">Include all rooms used for sleeping or converted spaces.</div>
+          <div class="counter-wrapper">
+            <button class="counter-button" onclick="adjustCounter('bedrooms', -1)">-</button>
+            <div class="counter-display" id="bedrooms-count">0</div>
+            <button class="counter-button" onclick="adjustCounter('bedrooms', 1)">+</button>
+          </div>
+          <div class="counter-label">Bedrooms</div>
+        </div>
+        <div class="section-box">
+          <div class="section-title">Number of Bathrooms</div>
+          <div class="section-subline">Include full and half bathrooms.</div>
+          <div class="counter-wrapper">
+            <button class="counter-button" onclick="adjustCounter('bathrooms', -1)">-</button>
+            <div class="counter-display" id="bathrooms-count">0</div>
+            <button class="counter-button" onclick="adjustCounter('bathrooms', 1)">+</button>
+          </div>
+          <div class="counter-label">Bathrooms</div>
+          <div id="error-bathrooms" class="error">REQUIRED!</div>
+        </div>
+        <div class="nav-buttons" style="justify-content: flex-end;">
+          <button class="next-button" onclick="goNext()">Next →</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Service Type & Package -->
+      <div class="step-section" id="service-type">
+        <div class="section-box">
+          <div class="section-title">Standard Home Cleaning Services</div>
+          <div class="grid-3">
+            <div class="service-card" onclick="selectServiceCategory(this,'EZ Fresh — Standard Cleaning')">
+              <h2>EZ Fresh — Standard Cleaning</h2>
+              <p>Regular maintenance cleaning covering all basic areas.</p>
+            </div>
+            <div class="service-card" onclick="selectServiceCategory(this,'Sparkle & Shine — Deep Cleaning')">
+              <h2>Sparkle & Shine — Deep Cleaning</h2>
+              <p>Thorough cleaning focusing on tough-to-reach areas and built-up dirt.</p>
+            </div>
+            <div class="service-card" onclick="selectServiceCategory(this,'Ultimate Reset — Pro Clean')">
+              <h2>Ultimate Reset — Pro Clean</h2>
+              <p>Our most comprehensive cleaning for homes needing significant attention.</p>
+            </div>
+            <div id="error-service" class="error">REQUIRED!</div>
+          </div>
+        </div>
+        <div class="section-box">
+          <div class="section-title">Specialized Cleaning Services</div>
+          <div class="grid-3">
+            <div class="service-card" onclick="selectServiceCategory(this,'Reset & Refresh (Move-In/Move-Out)')">
+              <h2>Reset & Refresh (Move-In/Move-Out)</h2>
+              <p>Start Fresh or Leave it Spotless—We’ve Got the Clean Covered.</p>
+            </div>
+            <div class="service-card" onclick="selectServiceCategory(this,'Build & Shine (Post-Construction)')">
+              <h2>Build & Shine (Post-Construction)</h2>
+              <p>From Sawdust to Spotless—We Bring Your New Space to Life.</p>
+            </div>
+            <div class="service-card" onclick="selectServiceCategory(this,'Host Ready (Airbnb & Rental)')">
+              <h2>Host Ready (Airbnb & Rental)</h2>
+              <p>Every Guest, Every Stay—A Flawless First Impression.</p>
+            </div>
+          </div>
+        </div>
+        <div class="section-box">
+          <div class="section-title">Select Your Cleaning Package</div>
+          <div class="grid-3">
+            <div class="package-option" onclick="selectPackage(this,'One-time Cleaning')">
+              <h2>One-time Cleaning</h2>
+            </div>
+            <div class="package-option" onclick="selectPackage(this,'Recurring Cleaning')">
+              <h2>Recurring Cleaning</h2>
+            </div>
+          </div>
+          <div id="error-package" class="error">REQUIRED!</div>
+          <div id="frequency-options" style="display:none;margin-top:1rem;">
+            <div class="grid-3">
+              <div class="frequency-option" onclick="selectFrequency(this,'Monthly')">
+                <h2>Monthly</h2>
+                <p>5% discount</p>
+              </div>
+              <div class="frequency-option" onclick="selectFrequency(this,'Bi-weekly')">
+                <h2>Bi-weekly</h2>
+                <p>10% discount</p>
+              </div>
+              <div class="frequency-option" onclick="selectFrequency(this,'Weekly')">
+                <h2>Weekly</h2>
+                <p>15% discount</p>
+              </div>
+              <div class="frequency-option" onclick="selectFrequency(this,'2x per Week')">
+                <h2>2x per Week</h2>
+                <p>20% discount</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="nav-buttons">
+          <button class="back-button" onclick="goBack()">← Back</button>
+          <button class="next-button" onclick="goNext()">Next →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Add-ons -->
+      <div class="step-section" id="add-ons">
+        <div class="section-box">
+          <div class="section-title">Choose Additional Services</div>
+          <div class="section-subline">
+            Enhance your cleaning experience with these optional add-on services. Select any that you’d like to include with your cleaning.
+          </div>
+          <div class="addon-list">
+            <label class="addon-item">
+              <input type="checkbox" name="addons" value="Laundry Service" />
+              <div class="addon-details">
+                <span class="addon-title">Laundry Service</span>
+                <span class="addon-desc">Comprehensive wash, dry, and fold care for all garments (per load)</span>
+              </div>
+              <span class="addon-price">+$20.00</span>
+            </label>
+            <label class="addon-item">
+              <input type="checkbox" name="addons" value="Full Laundry (sheets, towels, bedding)" />
+              <div class="addon-details">
+                <span class="addon-title">Full Laundry (sheets, towels, bedding)</span>
+                <span class="addon-desc">Comprehensive wash, dry, and fold care for all garments</span>
+              </div>
+              <span class="addon-price">+$50.00</span>
+            </label>
+            <label class="addon-item">
+              <input type="checkbox" name="addons" value="Fridge Cleaning" />
+              <div class="addon-details">
+                <span class="addon-title">Fridge Cleaning</span>
+                <span class="addon-desc">Clean inside &amp; outside of refrigerator</span>
+              </div>
+              <span class="addon-price">+$40.00</span>
+            </label>
+            <label class="addon-item">
+              <input type="checkbox" name="addons" value="Oven Deep Cleaning" />
+              <div class="addon-details">
+                <span class="addon-title">Oven Deep Cleaning</span>
+                <span class="addon-desc">Clean inside &amp; outside of oven</span>
+              </div>
+              <span class="addon-price">+$40.00</span>
+            </label>
+            <label class="addon-item">
+              <input type="checkbox" name="addons" value="Inside Window Cleaning" />
+              <div class="addon-details">
+                <span class="addon-title">Inside Window Cleaning</span>
+                <span class="addon-desc">Up to 10–15 reachable windows</span>
+              </div>
+              <span class="addon-price">+$80.00</span>
+            </label>
+            <label class="addon-item">
+              <input type="checkbox" name="addons" value="Wall Spot/Full Washing" />
+              <div class="addon-details">
+                <span class="addon-title">Wall Spot/Full Washing</span>
+                <span class="addon-desc">Spot clean or wash full room walls</span>
+              </div>
+              <span class="addon-price">+$40.00</span>
+            </label>
+            <label class="addon-item">
+              <input type="checkbox" name="addons" value="Garage Cleaning / Trash Haul-Off" />
+              <div class="addon-details">
+                <span class="addon-title">Garage Cleaning / Trash Haul-Off</span>
+                <span class="addon-desc">Sweep, organize, and remove junk</span>
+              </div>
+              <span class="addon-price">+$100.00</span>
+            </label>
+            <label class="addon-item">
+              <input type="checkbox" name="addons" value="Move-In/Out Deep Clean Add-On" />
+              <div class="addon-details">
+                <span class="addon-title">Move-In/Out Deep Clean Add-On</span>
+                <span class="addon-desc">Includes closets, drawers, cabinets</span>
+              </div>
+              <span class="addon-price">+$100.00</span>
+            </label>
+            <label class="addon-item">
+              <input type="checkbox" name="addons" value="Closet / Cabinet Organizing" />
+              <div class="addon-details">
+                <span class="addon-title">Closet / Cabinet Organizing</span>
+                <span class="addon-desc">Detailed organizing by hour</span>
+              </div>
+              <span class="addon-price">+$50.00/hr</span>
+            </label>
+            <label class="addon-item">
+              <input type="checkbox" name="addons" value="Balcony / Patio Cleaning" />
+              <div class="addon-details">
+                <span class="addon-title">Balcony / Patio Cleaning</span>
+                <span class="addon-desc">Detailed sweep and debris cleanup</span>
+              </div>
+              <span class="addon-price">+$40.00</span>
+            </label>
+            <label class="addon-item">
+              <input type="checkbox" name="addons" value="Pet Hair Removal (Furniture / Whole Home)" />
+              <div class="addon-details">
+                <span class="addon-title">Pet Hair Removal (Furniture / Whole Home)</span>
+                <span class="addon-desc">Remove pet hair from furniture or entire space.</span>
+              </div>
+              <span class="addon-price">+$40.00</span>
+            </label>
+          </div>
+          <div id="error-addons" class="error">REQUIRED!</div>
+        </div>
+        <div class="nav-buttons">
+          <button class="back-button" onclick="goBack()">← Back</button>
+          <button class="next-button" onclick="goNext()">Next →</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Contact & Booking -->
+      <div class="step-section" id="contact">
+        <div class="contact-form">
+        <div id="contact-global-error" style="color:red; font-weight:bold; display:none; margin-bottom:8px;"></div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="first-name">First Name</label>
+              <input class="form-input" type="text" id="first-name" />
+              <div id="error-first-name" class="error">REQUIRED!</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="last-name">Last Name</label>
+              <input class="form-input" type="text" id="last-name" />
+              <div id="error-last-name" class="error">REQUIRED!</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="address">Address</label>
+            <input class="form-input" type="text" id="address" />
+            <div id="error-address" class="error">REQUIRED!</div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="city">City</label>
+              <input class="form-input" type="text" id="city" />
+              <div id="error-city" class="error">REQUIRED!</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="state">State</label>
+              <input class="form-input" type="text" id="state" />
+              <div id="error-state" class="error">REQUIRED!</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="zip">Zip Code</label>
+              <input class="form-input" type="text" id="zip" />
+              <div id="error-zip" class="error">REQUIRED!</div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="phone">Phone Number</label>
+              <input class="form-input" type="tel" id="phone" />
+              <div id="error-phone" class="error">REQUIRED!</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="email">Email Address</label>
+              <input class="form-input" type="email" id="email" />
+              <div id="error-email" class="error">REQUIRED!</div>
+            </div>
+          </div>
+          <div class="calendar">
+            <label class="form-label" for="booking-date">Select Date (NOTE: a minimum of 48 hours’ notice is required for this service. Please contact us directly to confirm availability within this timeframe.)</label>
+            <input class="form-date" type="date" id="booking-date" />
+            <label class="form-label" for="timeslot-select">Select Time Slot</label>
+            <select class="form-input" id="timeslot-select">
+              <option value="">-- Select a time --</option>
+            </select>
+            <div id="error-timeslot" class="error">REQUIRED!</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="additional-info">Additional Information (Example: Entry instructions, gate codes, pet details, parking notes, specific areas to focus on, or any other special requests.)</label>
+            <textarea class="form-textarea" id="additional-info" rows="4" placeholder="Anything else we should know?"></textarea>
+          </div>
+        </div>
+        <div class="nav-buttons">
+          <button class="back-button" onclick="goBack()">← Back</button>
+          <button class="next-button" onclick="goNext()">Next →</button>
+        </div>
+      </div>
+
+  <!-- Inside .form-wrapper -->
+<div class="step-section" id="payment">
+  <div class="section-box">
+    <div class="section-title">Payment</div>
+    <div class="section-subline">Review your booking and enter payment details.</div>
+
+    <div id="summary-payment">
+      <h3>Order Summary</h3>
+      <ul id="payment-summary-list" style="text-align:left; display:inline-block;"></ul>
+      <p><strong>Total: $<span id="total-amount">0.00</span></strong></p>
+    </div>
+<div id="stripe-loader" style="display:none; text-align:center;">
+  <p>Loading secure payment form...</p>
+</div>
+		<div id="payment-request-button"></div>
+    <form id="payment-form">
+      <!-- ✅ Stripe Payment Element placeholder -->
+      <div id="payment-element"></div>
+
+      <button id="submit">Pay</button>
+      <div id="payment-message"></div>
+    </form>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="back-button" onclick="goBack()">← Back</button>
+  </div>
+</div>
+</div> <!-- closes .form-wrapper -->
+
+<div class="summary-bar">
+  <h3>Summary</h3>
+  <div class="summary-item"><strong>Property Type:</strong> <span id="summary-property">None</span></div>
+  <div class="summary-item"><strong>Bedrooms:</strong> <span id="summary-bedrooms">0</span></div>
+  <div class="summary-item"><strong>Bathrooms:</strong> <span id="summary-bathrooms">0</span></div>
+  <div class="summary-item"><strong>Service Type:</strong> <span id="summary-service">None</span></div>
+  <div class="summary-item"><strong>Cleaning Package:</strong> <span id="summary-package">None</span></div>
+  <div class="summary-item"><strong>Frequency:</strong> <span id="summary-frequency">None</span></div>
+  <div id="summary-addons" class="summary-item"></div>
+  <div class="summary-item"><strong>Total Price:</strong> $<span id="summary-total">0.00</span></div>
+</div>
+</div> <!-- closes .container -->
+
+<script>
+
+
+  const pricing = {
+    'EZ Fresh — Standard Cleaning':        { Apartment: 130, Condo: 140, House: 145 },
+    'Sparkle & Shine — Deep Cleaning':     { Apartment: 160, Condo: 170, House: 175 },
+    'Ultimate Reset — Pro Clean':          { Apartment: 180, Condo: 195, House: 200 },
+    'Reset & Refresh (Move-In/Move-Out)':  { Apartment: 200, Condo: 210, House: 230 },
+    'Build & Shine (Post-Construction)':   { Apartment: 250, Condo: 260, House: 280 },
+    'Host Ready (Airbnb & Rental)':        { Apartment: 130, Condo: 140, House: 145 }
+  };
+  const stripePublicKey = "Publisherkey";
+  const stripe = Stripe(stripePublicKey);
+  let stripeElements = null;
+  let paymentEl = null;
+
+  const bookingState = {
+    selectedProperty: null,
+    selectedService: null,
+    selectedPackage: null,
+    selectedFrequency: null,
+    selectedTimeslot: null
+  };
+
+  let stepIndex = 0;
+  const steps = ["home-details", "service-type", "add-ons", "contact", "payment"];
+
+  function showStep(index) {
+    document.querySelectorAll('.step-section').forEach((el, i) => {
+      el.style.display = i === index ? 'block' : 'none';
+    });
+    stepIndex = index;
+    updateProgress();
+  }
+
+  function fadeTransition(fromIndex, toIndex) {
+    const from = document.getElementById(steps[fromIndex]);
+    const to   = document.getElementById(steps[toIndex]);
+    if (!from || !to) {
+      showStep(toIndex);
+      if (steps[toIndex] === "payment") {
+        updateSummaryUI();
+        setTimeout(initStripe, 400);
+      }
+      return;
+    }
+    from.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: "forwards" })
+      .onfinish = () => {
+        from.style.display = "none";
+        to.style.display   = "block";
+        to.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, fill: "forwards" })
+          .onfinish = () => {
+            stepIndex = toIndex;
+            updateProgress();
+            if (steps[toIndex] === "payment") {
+              updateSummaryUI();
+              setTimeout(initStripe, 400);
+            }
+          };
+      };
+  }
+
+  function startBooking() {
+    document.getElementById('intro-section').style.display = 'none';
+    showStep(0);
+    initCalendar();
+    updateSummaryUI();
+  }
+
+  function goNext() {
+    if (!validateStep(stepIndex)) return;
+    if (stepIndex < steps.length - 1) {
+      fadeTransition(stepIndex, stepIndex + 1);
+    }
+  }
+  function goBack() {
+    if (stepIndex > 0) {
+      fadeTransition(stepIndex, stepIndex - 1);
+    }
+  }
+
+  function updateProgress() {
+    const percent = ((stepIndex + 1) / steps.length) * 100;
+    document.getElementById("progress-bar").style.width = `${percent}%`;
+  }
+
+  function selectProperty(type) {
+    document.querySelectorAll(".property-option").forEach(el => el.classList.remove("selected"));
+    const sel = [...document.querySelectorAll(".property-option")]
+                .find(el => el.textContent.includes(type));
+    if (sel) sel.classList.add("selected");
+    bookingState.selectedProperty = type;
+    document.getElementById("summary-property").textContent = type;
+    document.getElementById("error-property").style.display = "none";
+    updateSummaryUI();
+  }
+
+  function adjustCounter(field, delta) {
+    const el  = document.getElementById(`${field}-count`);
+    let val   = parseInt(el.innerText, 10) + delta;
+    if (val < 0) val = 0;
+    el.innerText = val;
+    document.getElementById(`summary-${field}`).textContent = val;
+    if (field === "bathrooms" && val >= 1) {
+      document.getElementById("error-bathrooms").style.display = "none";
+    }
+    updateSummaryUI();
+  }
+
+  function selectServiceCategory(el, name) {
+    selectService(el, name);
+  }
+  function selectService(el, name) {
+    document.querySelectorAll(".service-card").forEach(c => c.classList.remove("selected"));
+    el.classList.add("selected");
+    bookingState.selectedService = name;
+    document.getElementById("summary-service").textContent = name;
+    document.getElementById("error-service").style.display = "none";
+    updateSummaryUI();
+  }
+
+  function selectPackage(el, name) {
+    document.querySelectorAll(".package-option").forEach(o => o.classList.remove("selected"));
+    el.classList.add("selected");
+    bookingState.selectedPackage = name;
+    document.getElementById("summary-package").textContent = name;
+    document.getElementById("error-package").style.display = "none";
+    document.getElementById("frequency-options").style.display = name === "Recurring Cleaning" ? "block" : "none";
+    if (name !== "Recurring Cleaning") {
+      bookingState.selectedFrequency = null;
+      document.getElementById("summary-frequency").textContent = "None";
+    }
+    updateSummaryUI();
+  }
+
+  function selectFrequency(el, label) {
+    document.querySelectorAll(".frequency-option").forEach(o => o.classList.remove("selected"));
+    el.classList.add("selected");
+    bookingState.selectedFrequency = label;
+    document.getElementById("summary-frequency").textContent = label;
+    updateSummaryUI();
+  }
+
+  function updateAddOnSummary() {
+    const summaryContainer = document.getElementById("summary-addons");
+    const selectedAddOns = Array.from(
+      document.querySelectorAll(".addon-item input:checked")
+    ).map(cb => cb.value);
+    summaryContainer.innerHTML = selectedAddOns.length > 0
+      ? `<strong>Additional Services:</strong><ul>${selectedAddOns
+          .map(item => `<li>${item}</li>`)
+          .join("")}</ul>`
+      : "";
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".addon-item input[type='checkbox']").forEach(cb => {
+      cb.addEventListener("change", () => {
+        cb.parentElement.classList.toggle("selected", cb.checked);
+        updateSummaryUI();
+      });
+    });
+    ["first-name","last-name","address","city","state","zip","phone","email","booking-date"]
+      .forEach(id => {
+        const el = document.getElementById(id);
+        const err = document.getElementById(`error-${id}`);
+        if (!el || !err) return;
+        const evt = id === "booking-date" ? "change" : "input";
+        el.addEventListener(evt, () => { err.style.display = "none"; });
+      });
+  });
+
+  let bookings = {};
+  function initCalendar() {
+    const dateInput = document.getElementById("booking-date");
+    const today = new Date().toISOString().split("T")[0];
+    dateInput.min = today;
+    dateInput.value = today;
+    dateInput.addEventListener("change", () => renderSlots(dateInput.value));
+    renderSlots(today);
+  }
+
+  function renderSlots(date) {
+    const sel = document.getElementById("timeslot-select");
+    sel.innerHTML = '<option value="">-- Select a time --</option>';
+    bookings[date] = bookings[date] || [];
+    for (let h = 8; h <= 18; h++) {
+      const hour = String(h).padStart(2, "0");
+      const t = `${hour}:00`;
+      const timeString = new Date(`${date}T${t}`)
+        .toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+      const opt = document.createElement("option");
+      opt.value = timeString;
+      opt.textContent = timeString;
+      if (bookings[date][0] === timeString) opt.selected = true;
+      sel.appendChild(opt);
+    }
+    sel.onchange = () => {
+      const t = sel.value;
+      if (t) {
+        bookings[date] = [t];
+        bookingState.selectedTimeslot = t;
+        document.getElementById("error-timeslot").style.display = "none";
+      } else {
+        bookings[date] = [];
+        bookingState.selectedTimeslot = null;
+      }
+    };
+  }
+
+  function validateStep(idx) {
+    let ok = true;
+    if (idx === 0) {
+      if (!bookingState.selectedProperty) {
+        document.getElementById("error-property").style.display = "block";
+        ok = false;
+      }
+      const baths = parseInt(document.getElementById("bathrooms-count").textContent, 10);
+      if (baths < 1) {
+        document.getElementById("error-bathrooms").style.display = "block";
+        ok = false;
+      }
+    }
+    if (idx === 1) {
+      if (!bookingState.selectedService) {
+        document.getElementById("error-service").style.display = "block";
+        ok = false;
+      }
+      if (!bookingState.selectedPackage) {
+        document.getElementById("error-package").style.display = "block";
+        ok = false;
+      }
+    }
+    if (idx === 3) {
+      ["first-name","last-name","address","city","state","zip","phone","email","booking-date"]
+        .forEach(id => {
+          const el = document.getElementById(id);
+          const err = document.getElementById(`error-${id}`);
+          if (!el.value.trim()) {
+            err.style.display = "block";
+            ok = false;
+          }
+        });
+      const slotVal = document.getElementById("timeslot-select").value;
+      if (!slotVal.trim()) {
+        document.getElementById("error-timeslot").style.display = "block";
+        ok = false;
+      } else {
+        bookingState.selectedTimeslot = slotVal;
+      }
+    }
+    return ok;
+  }
+
+  function computeGrandTotal() {
+    const service  = bookingState.selectedService;
+    const property = bookingState.selectedProperty;
+    const beds     = parseInt(document.getElementById("summary-bedrooms").textContent, 10) || 0;
+    const baths    = parseInt(document.getElementById("summary-bathrooms").textContent, 10) || 0;
+    const base     = pricing[service]?.[property] || 0;
+    const extra    = Math.max(0, beds - 1) * 10 + Math.max(0, baths - 1) * 10;
+
+    let addonsTotal = 0;
+    document.querySelectorAll(".addon-item input:checked").forEach(cb => {
+      const p = cb.closest(".addon-item").querySelector(".addon-price").textContent;
+      addonsTotal += parseFloat(p.replace("+$", "").replace("/hr", "")) || 0;
+    });
+
+    const preDiscountTotal = base + extra + addonsTotal;
+    let discountRate = 0;
+    if (bookingState.selectedPackage === "Recurring Cleaning" && bookingState.selectedFrequency) {
+      switch (bookingState.selectedFrequency) {
+        case "Monthly":     discountRate = 0.05; break;
+        case "Bi-weekly":   discountRate = 0.10; break;
+        case "Weekly":      discountRate = 0.15; break;
+        case "2× per Week": discountRate = 0.20; break;
+      }
+    }
+    const finalTotal = preDiscountTotal * (1 - discountRate);
+    document.getElementById("summary-total").textContent = finalTotal.toFixed(2);
+    document.getElementById("total-amount").textContent  = finalTotal.toFixed(2);
+    return finalTotal;
+  }
+
+function populatePaymentSummary() {
+  const list = document.getElementById("payment-summary-list");
+  list.innerHTML = "";
+  const items = [
+    ["Property Type", bookingState.selectedProperty || "—"],
+    ["Bedrooms", document.getElementById("summary-bedrooms").textContent],
+    ["Bathrooms", document.getElementById("summary-bathrooms").textContent],
+    ["Service", bookingState.selectedService || "—"],
+    ["Package", bookingState.selectedPackage || "—"],
+    ["Frequency", bookingState.selectedFrequency || "—"]
+  ];
+  const name    = document.getElementById("first-name").value.trim() + " " + document.getElementById("last-name").value.trim();
+  const address = [
+    document.getElementById("address").value.trim(),
+    document.getElementById("city").value.trim(),
+    document.getElementById("state").value.trim(),
+    document.getElementById("zip").value.trim()
+  ].filter(Boolean).join(", ");
+  const phone   = document.getElementById("phone").value.trim() || "—";
+  const email   = document.getElementById("email").value.trim() || "—";
+  const date    = document.getElementById("booking-date").value || "—";
+  const time    = bookingState.selectedTimeslot || "—";
+  const additionalInfo = document.getElementById("additional-info").value.trim();
+
+  items.push(
+    ["Name", name],
+    ["Address", address],
+    ["Phone", phone],
+    ["Email", email],
+    ["Date", date],
+    ["Time Slot", time],
+    ["Additional Info", additionalInfo || "—"]
+  );
+
+  items.forEach(([label, value]) => {
+    const li = document.createElement("li");
+    li.textContent = `${label}: ${value}`;
+    list.appendChild(li);
+  });
+  document.querySelectorAll(".addon-item input:checked").forEach(cb => {
+    const li = document.createElement("li");
+    li.textContent = cb.value;
+    list.appendChild(li);
+  });
+}
+
+  async function handlePaymentSubmit(e) {
+  e.preventDefault();
+  if (!stripeElements) {
+    document.getElementById("payment-message").textContent = "Payment system not ready. Refresh and try again.";
+    return;
+  }
+  const { error } = await stripe.confirmPayment({
+    elements: stripeElements,
+    confirmParams: { return_url: window.location.href },
+    redirect: "if_required"
+  });
+  if (error) {
+    document.getElementById("payment-message").textContent = error.message;
+  } else {
+    await sendOrderSummaryEmail();
+    showConfirmation();
+  }
+}
+ async function initStripe() {
+    const loader = document.getElementById("stripe-loader");
+    const prBtn  = document.getElementById("payment-request-button");
+    loader.style.display = "block";
+    updateSummaryUI();
+    const amount = Math.round(computeGrandTotal() * 100);
+    if (amount < 50) {
+      document.getElementById("payment-message").textContent = "Amount too low.";
+      loader.style.display = "none";
+      return;
+    }
+    try {
+      const resp = await fetch("https://jfyyz0cthk.execute-api.us-east-2.amazonaws.com/prod/stripePaymentIntent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount })
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || "Unknown server error");
+      const { clientSecret } = data;
+      if (!stripeElements) stripeElements = stripe.elements({ clientSecret });
+
+      const paymentRequest = stripe.paymentRequest({
+        country: "US",
+        currency: "usd",
+        total: { label: "Total", amount },
+        requestPayerName: true,
+        requestPayerEmail: true
+      });
+      const prButton = stripeElements.create("paymentRequestButton", { paymentRequest });
+      if (await paymentRequest.canMakePayment()) {
+        prBtn.innerHTML = "";
+        prButton.mount("#payment-request-button");
+      } else {
+        prBtn.style.display = "none";
+      }
+
+      if (!paymentEl) {
+        paymentEl = stripeElements.create("payment");
+        paymentEl.mount("#payment-element");
+      }
+
+      const form = document.getElementById("payment-form");
+      form.removeEventListener("submit", handlePaymentSubmit);
+      form.addEventListener("submit", handlePaymentSubmit);
+
+      loader.style.display = "none";
+    } catch (err) {
+      console.error(err);
+      document.getElementById("payment-message").textContent = "⚠️ Payment init failed. Refresh and try again.";
+      loader.style.display = "none";
+    }
+  }
+
+  function showConfirmation() {
+    document.querySelector(".form-wrapper").innerHTML =
+      `<div class="section-box" style="text-align:center;">
+         <h2>Thank You!</h2>
+         <p>Your booking has been successfully received.</p>
+         <p>A confirmation has been sent to your email.</p>
+       </div>`;
+  }
+
+  function updateSummaryUI() {
+    computeGrandTotal();
+    populatePaymentSummary();
+    updateAddOnSummary();
+  }
+// Place this in your <script> section (not in a separate .js file unless you want to import it)
+const apiBase = "https://b2wzyfewp6.execute-api.us-east-2.amazonaws.com";
+const sendBookingEmailUrl = `${apiBase}/sendBookingEmails`; // NOTE the "s"!
+
+async function sendOrderSummaryEmail() {
+  const summary = {
+    propertyType: bookingState.selectedProperty,
+    bedrooms: document.getElementById("summary-bedrooms").textContent,
+    bathrooms: document.getElementById("summary-bathrooms").textContent,
+    service: bookingState.selectedService,
+    package: bookingState.selectedPackage,
+    frequency: bookingState.selectedFrequency,
+    name: document.getElementById("first-name").value.trim() + " " + document.getElementById("last-name").value.trim(),
+    address: [
+      document.getElementById("address").value.trim(),
+      document.getElementById("city").value.trim(),
+      document.getElementById("state").value.trim(),
+      document.getElementById("zip").value.trim()
+    ].filter(Boolean).join(", "),
+    phone: document.getElementById("phone").value.trim(),
+    email: document.getElementById("email").value.trim(),
+    date: document.getElementById("booking-date").value,
+    timeSlot: bookingState.selectedTimeslot,
+    additionalInfo: document.getElementById("additional-info").value.trim(),
+    addons: Array.from(document.querySelectorAll(".addon-item input:checked")).map(cb => cb.value),
+    total: document.getElementById("summary-total").textContent
+  };
+
+  try {
+    const res = await fetch(sendBookingEmailUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(summary)
+    });
+    if (!res.ok) {
+      console.error("Failed to send booking email");
+    }
+  } catch (err) {
+    console.error("Error sending booking email:", err);
+  }
+}
+ 
+</script>
+</body>
+</html>
